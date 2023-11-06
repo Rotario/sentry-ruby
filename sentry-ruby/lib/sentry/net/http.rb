@@ -77,7 +77,12 @@ module Sentry
       end
 
       def extract_request_info(req)
-        uri = req.uri || URI.parse("#{use_ssl? ? 'https' : 'http'}://#{address}#{req.path}")
+        if address =~ Resolv::IPv6::Regex
+          hostname = "[#{address}]"
+        else
+          hostname = address
+        end
+        uri = req.uri || URI.parse("#{use_ssl? ? 'https' : 'http'}://#{hostname}#{req.path}")
         url = "#{uri.scheme}://#{uri.host}#{uri.path}" rescue uri.to_s
 
         result = { method: req.method, url: url }
